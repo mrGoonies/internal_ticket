@@ -66,10 +66,6 @@ class Ticket(models.Model):
         INCIDENCIA = 'INCIDENCIA', 'Incidencia'
         REQUERIMIENTO = 'REQUERIMIENTO', 'Requerimiento'
 
-    class CanalOrigen(models.TextChoices):
-        WEB = 'WEB', 'Formulario web'
-        EMAIL = 'EMAIL', 'Correo electronico'
-
     class Estado(models.TextChoices):
         NUEVO = 'NUEVO', 'Nuevo'
         ASIGNADO = 'ASIGNADO', 'Asignado'
@@ -96,8 +92,6 @@ class Ticket(models.Model):
 
     solicitante_nombre = models.CharField(max_length=120)
     solicitante_email = models.EmailField()
-    canal_origen = models.CharField(max_length=10, choices=CanalOrigen.choices)
-    email_thread_id = models.CharField(max_length=255, blank=True)
 
     estado = models.CharField(
         max_length=20, choices=Estado.choices, default=Estado.NUEVO, db_index=True

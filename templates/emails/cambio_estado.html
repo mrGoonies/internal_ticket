@@ -12,13 +12,21 @@
 <p style="font-family:'Courier New',monospace;font-size:18px;font-weight:bold;color:#3f6b71;margin:16px 0;">{{ ticket.get_estado_display }}</p>
 
 {% if ticket.estado == "ESPERANDO_USUARIO" %}
-  <p>Necesitamos informacion adicional de tu parte para seguir. Responde a este correo con los detalles.</p>
+  <p>Necesitamos informacion adicional de tu parte para seguir. Un agente te contactara directamente para pedirtela.</p>
 {% elif ticket.estado == "RESUELTO" %}
   {% if ticket.solucion_aplicada %}
     <p><strong>Solucion aplicada:</strong><br>{{ ticket.solucion_aplicada }}</p>
   {% endif %}
-  <p>Si el problema persiste, responde a este correo y reabrimos tu caso.</p>
+  <p>Si el problema persiste, ingresa una nueva solicitud mencionando el codigo {{ ticket.codigo }}.</p>
 {% elif ticket.estado == "CERRADO" %}
   <p>Dimos por cerrado tu caso. En unos minutos te llega una encuesta corta para calificar el servicio.</p>
+{% endif %}
+{% endblock %}
+
+{% block cta %}
+{% if ticket.estado == "RESUELTO" %}
+  <p style="margin:24px 0;">
+    <a href="{{ url_formulario }}" style="background:#b23a2e;color:#f2eee3;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Ingresar nueva solicitud</a>
+  </p>
 {% endif %}
 {% endblock %}

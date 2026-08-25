@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page {
+    size: A4;
+    margin: 1.8cm 1.5cm;
+  }
+  body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 9.5pt;
+    color: #1e2a38;
+  }
+  h1 {
+    font-size: 16pt;
+    color: #1e2a38;
+    margin: 0 0 2px;
+  }
+  .eyebrow {
+    font-size: 8pt;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #b23a2e;
+    margin: 0 0 4px;
+  }
+  .meta {
+    font-size: 8pt;
+    color: #666;
+    margin: 0 0 18px;
+  }
+  h2 {
+    font-size: 11pt;
+    color: #1e2a38;
+    border-bottom: 1px solid #b23a2e;
+    padding-bottom: 3px;
+    margin: 18px 0 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 4px;
+  }
+  th {
+    text-align: left;
+    font-size: 8pt;
+    text-transform: uppercase;
+    color: #666;
+    background-color: #f2eee3;
+    padding: 5px 6px;
+    border-bottom: 1px solid #ccc;
+  }
+  td {
+    padding: 5px 6px;
+    border-bottom: 1px solid #e4e4e0;
+    vertical-align: top;
+  }
+  .summary-table td {
+    width: 25%;
+    border: none;
+    padding: 8px 10px;
+  }
+  .summary-box {
+    background-color: #f2eee3;
+    padding: 4px 0;
+  }
+  .summary-label {
+    font-size: 7.5pt;
+    text-transform: uppercase;
+    color: #666;
+    margin: 0 0 3px;
+  }
+  .summary-value {
+    font-size: 16pt;
+    font-weight: bold;
+    color: #1e2a38;
+    margin: 0;
+  }
+  .summary-hint {
+    font-size: 7pt;
+    color: #8b8577;
+    margin: 3px 0 0;
+  }
+  .pill {
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 7.5pt;
+    color: #ffffff;
+  }
+  .footer-note {
+    margin-top: 20px;
+    font-size: 7.5pt;
+    color: #8b8577;
+  }
+</style>
+</head>
+<body>
+  <p class="eyebrow">Mesa de ayuda TI &middot; Reporte de cumplimiento KPI</p>
+  <h1>{{ nombre_mes }} {{ anio }}</h1>
+  <p class="meta">Generado el {{ generado_at|date:"d-m-Y H:i" }} por {{ agente }}</p>
+
+  <table class="summary-table">
+    <tr>
+      <td class="summary-box">
+        <p class="summary-label">Tickets resueltos</p>
+        <p class="summary-value">{{ total_resueltos }}</p>
+      </td>
+      <td class="summary-box">
+        <p class="summary-label">Tiempo promedio resolucion</p>
+        <p class="summary-value">{% if promedio_horas %}{{ promedio_horas|floatformat:1 }} h{% else %}&mdash;{% endif %}</p>
+        <p class="summary-hint">Habil, sin espera al usuario</p>
+      </td>
+      <td class="summary-box">
+        <p class="summary-label">Cumplimiento SLA</p>
+        <p class="summary-value">{% if pct_sla != None %}{{ pct_sla|floatformat:0 }}%{% else %}&mdash;{% endif %}</p>
+        <p class="summary-hint">{{ dentro_sla }} de {{ total_resueltos }} dentro de plazo</p>
+      </td>
+      <td class="summary-box">
+        <p class="summary-label">Satisfaccion (CSAT)</p>
+        <p class="summary-value">{% if csat_promedio %}{{ csat_promedio|floatformat:1 }}/5{% else %}&mdash;{% endif %}</p>
+        <p class="summary-hint">{{ csat_total }} encuesta{{ csat_total|pluralize }} respondida{{ csat_total|pluralize }}</p>
+      </td>
+    </tr>
+  </table>
+
+  <h2>Incidencias vs requerimientos</h2>
+  <table>
+    <tr><th>Tipo</th><th>Resueltos en el periodo</th></tr>
+    <tr><td>Incidencias</td><td>{{ total_incidencias }}</td></tr>
+    <tr><td>Requerimientos</td><td>{{ total_requerimientos }}</td></tr>
+  </table>
+
+  <h2>Por area solicitante</h2>
+  <table>
+    <tr><th>Area</th><th>Cantidad</th><th>% del total</th></tr>
+    {% for fila in por_area %}
+      <tr>
+        <td>{{ fila.nombre }}</td>
+        <td>{{ fila.total }}</td>
+        <td>{% widthratio fila.total total_resueltos 100 %}%</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Por prioridad</h2>
+  <table>
+    <tr><th>Prioridad</th><th>Cantidad</th></tr>
+    {% for fila in por_prioridad %}
+      <tr>
+        <td><span class="pill" style="background-color: {{ fila.color }};">{{ fila.nombre }}</span></td>
+        <td>{{ fila.total }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <h2>Detalle de tickets resueltos</h2>
+  <table>
+    <tr>
+      <th>Codigo</th>
+      <th>Titulo</th>
+      <th>Area</th>
+      <th>Prioridad</th>
+      <th>Tiempo habil</th>
+      <th>SLA</th>
+      <th>Resuelto</th>
+    </tr>
+    {% for fila in detalle %}
+      <tr>
+        <td>{{ fila.ticket.codigo }}</td>
+        <td>{{ fila.ticket.titulo }}</td>
+        <td>{{ fila.ticket.area_solicitante.nombre }}</td>
+        <td>{{ fila.ticket.prioridad.nombre }}</td>
+        <td>{% if fila.horas %}{{ fila.horas|floatformat:1 }} h{% else %}&mdash;{% endif %}</td>
+        <td>
+          {% if fila.cumple_sla == True %}
+            <span class="pill" style="background-color: #2f7d43;">Dentro</span>
+          {% elif fila.cumple_sla == False %}
+            <span class="pill" style="background-color: #8f2d23;">Fuera</span>
+          {% else %}
+            &mdash;
+          {% endif %}
+        </td>
+        <td>{{ fila.ticket.fecha_resolucion|date:"d-m-Y H:i" }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <p class="footer-note">Reporte generado automaticamente por la mesa de ayuda TI. Los tiempos de resolucion excluyen el tiempo en estado "esperando al usuario".</p>
+</body>
+</html>

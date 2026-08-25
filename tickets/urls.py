@@ -16,6 +16,7 @@ urlpatterns = [
     path('panel/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('panel/', views.lista_tickets, name='lista_tickets'),
     path('panel/kpi/', views.panel_kpi, name='panel_kpi'),
+    path('panel/kpi/pdf/', views.panel_kpi_pdf, name='panel_kpi_pdf'),
     path('panel/<str:codigo>/', views.detalle_ticket, name='detalle_ticket'),
     path('encuesta/<uuid:token>/', views.responder_encuesta, name='responder_encuesta'),
 ]

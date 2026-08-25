@@ -39,7 +39,7 @@ class TicketAdmin(admin.ModelAdmin):
         'agente_asignado',
         'fecha_creacion',
     ]
-    list_filter = ['tipo_solicitud', 'estado', 'prioridad', 'categoria', 'area_solicitante', 'canal_origen']
+    list_filter = ['tipo_solicitud', 'estado', 'prioridad', 'categoria', 'area_solicitante']
     search_fields = ['codigo', 'titulo', 'descripcion', 'solicitante_nombre', 'solicitante_email']
     readonly_fields = ['codigo', 'fecha_creacion']
     inlines = [HistorialEstadoInline, AdjuntoInline]

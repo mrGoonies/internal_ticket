@@ -56,7 +56,7 @@ def notificar_cambio_estado(ticket):
         ticket.solicitante_email,
         f'Tu ticket {ticket.codigo} cambio a {ticket.get_estado_display()}',
         'emails/cambio_estado.html',
-        {'ticket': ticket},
+        {'ticket': ticket, 'url_formulario': settings.SITE_BASE_URL},
     )
 
 

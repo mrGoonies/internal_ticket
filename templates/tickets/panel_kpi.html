@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}KPI - Panel de tickets{% endblock %}
+
+{% block content %}
+<section class="panel-card">
+  <div class="kpi-header">
+    <div>
+      <p class="ticket-card__eyebrow">Cumplimiento de KPI</p>
+      <h1 style="font-family: var(--font-display); margin: 0;">{{ nombre_mes }} {{ anio }}</h1>
+    </div>
+    <div class="kpi-nav">
+      <a href="?mes={{ mes_anterior }}">&larr; Mes anterior</a>
+      {% if not es_mes_actual %}<a href="{% url 'tickets:panel_kpi' %}">Mes actual</a>{% endif %}
+      <a href="?mes={{ mes_siguiente }}">Mes siguiente &rarr;</a>
+      <a href="{% url 'tickets:panel_kpi_pdf' %}?mes={{ anio }}-{{ mes|stringformat:'02d' }}" class="kpi-nav__pdf">Descargar PDF</a>
+    </div>
+  </div>
+
+  <div class="stat-row">
+    <div class="stat-tile">
+      <p class="stat-tile__label">Tickets resueltos</p>
+      <p class="stat-tile__value">{{ total_resueltos }}</p>
+    </div>
+    <div class="stat-tile">
+      <p class="stat-tile__label">Tiempo promedio de resolucion</p>
+      <p class="stat-tile__value">{% if promedio_horas %}{{ promedio_horas|floatformat:1 }} h{% else %}&mdash;{% endif %}</p>
+      <p class="stat-tile__hint">Habil, sin contar espera al usuario</p>
+    </div>
+    <div class="stat-tile">
+      <p class="stat-tile__label">Cumplimiento SLA</p>
+      <p class="stat-tile__value">{% if pct_sla != None %}{{ pct_sla|floatformat:0 }}%{% else %}&mdash;{% endif %}</p>
+      <div class="meter">
+        <div class="meter__fill" style="width: {{ pct_sla|default:0 }}%;"></div>
+      </div>
+      <p class="stat-tile__hint">{{ dentro_sla }} de {{ total_resueltos }} dentro de plazo</p>
+    </div>
+    <div class="stat-tile">
+      <p class="stat-tile__label">Satisfaccion (CSAT)</p>
+      <p class="stat-tile__value">{% if csat_promedio %}{{ csat_promedio|floatformat:1 }}/5{% else %}&mdash;{% endif %}</p>
+      <p class="stat-tile__hint">{{ csat_total }} encuesta{{ csat_total|pluralize }} respondida{{ csat_total|pluralize }}</p>
+    </div>
+  </div>
+
+  <div class="stat-row stat-row--split">
+    <div class="stat-tile stat-tile--flat">
+      <p class="stat-tile__label">Incidencias resueltas</p>
+      <p class="stat-tile__value">{{ total_incidencias }}</p>
+    </div>
+    <div class="stat-tile stat-tile--flat">
+      <p class="stat-tile__label">Requerimientos resueltos</p>
+      <p class="stat-tile__value">{{ total_requerimientos }}</p>
+    </div>
+  </div>
+
+  <div class="kpi-charts">
+    <div class="detail-block">
+      <h2>Por area solicitante</h2>
+      {% if por_area %}
+        <div class="bar-chart-h">
+          {% for fila in por_area %}
+            <div class="bar-chart-h__row">
+              <span class="bar-chart-h__label">{{ fila.nombre }}</span>
+              <div class="bar-chart-h__track">
+                <div class="bar-chart-h__fill" style="width: {{ fila.pct }}%; background: {{ fila.color }};"></div>
+              </div>
+              <span class="bar-chart-h__value">{{ fila.total }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-state">Sin tickets resueltos en este periodo.</p>
+      {% endif %}
+    </div>
+
+    <div class="detail-block">
+      <h2>Por prioridad</h2>
+      {% if por_prioridad %}
+        <div class="bar-chart-h">
+          {% for fila in por_prioridad %}
+            <div class="bar-chart-h__row">
+              <span class="bar-chart-h__label">{{ fila.nombre }}</span>
+              <div class="bar-chart-h__track">
+                <div class="bar-chart-h__fill" style="width: {{ fila.pct }}%; background: {{ fila.color }};"></div>
+              </div>
+              <span class="bar-chart-h__value">{{ fila.total }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="empty-state">Sin tickets resueltos en este periodo.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="detail-block">
+    <h2>Detalle de tickets resueltos</h2>
+    {% if detalle %}
+      <div style="overflow-x: auto;">
+        <table class="ticket-table">
+          <thead>
+            <tr>
+              <th>Codigo</th>
+              <th>Titulo</th>
+              <th>Area</th>
+              <th>Prioridad</th>
+              <th>Tiempo habil</th>
+              <th>SLA</th>
+              <th>Resuelto</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for fila in detalle %}
+              <tr>
+                <td><a href="{% url 'tickets:detalle_ticket' codigo=fila.ticket.codigo %}">{{ fila.ticket.codigo }}</a></td>
+                <td>{{ fila.ticket.titulo }}</td>
+                <td>{{ fila.ticket.area_solicitante.nombre }}</td>
+                <td><span class="badge is-{{ fila.ticket.prioridad.nombre|lower }}">{{ fila.ticket.prioridad.nombre }}</span></td>
+                <td style="font-variant-numeric: tabular-nums;">{% if fila.horas %}{{ fila.horas|floatformat:1 }} h{% else %}&mdash;{% endif %}</td>
+                <td>
+                  {% if fila.cumple_sla == True %}
+                    <span class="badge is-resuelto">Dentro</span>
+                  {% elif fila.cumple_sla == False %}
+                    <span class="badge is-critica">Fuera</span>
+                  {% else %}
+                    &mdash;
+                  {% endif %}
+                </td>
+                <td>{{ fila.ticket.fecha_resolucion|date:"d-m-Y H:i" }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="empty-state">No hay tickets resueltos en este periodo.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

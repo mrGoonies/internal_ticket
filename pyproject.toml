@@ -8,4 +8,5 @@ dependencies = [
     "django>=6.1",
     "django-environ>=0.14.0",
     "mailchimp-transactional>=1.4.1",
+    "xhtml2pdf>=0.2.17",
 ]

@@ -3,7 +3,8 @@ from django.db import models
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from .forms import TicketGestionForm, TicketPublicoForm
+from . import emails
+from .forms import EncuestaCSATForm, TicketGestionForm, TicketPublicoForm
 from .models import Adjunto, EncuestaCSAT, HistorialEstado, Prioridad, Ticket
 from .services import inferir_prioridad
 
@@ -28,6 +29,8 @@ def crear_ticket(request):
 
             for archivo in request.FILES.getlist('adjuntos'):
                 Adjunto.objects.create(ticket=ticket, archivo=archivo)
+
+            emails.notificar_ticket_creado(ticket)
 
             # Se guarda en la sesion (no en la URL) para que el codigo del ticket,
             # que es correlativo y adivinable, no sirva para ver tickets ajenos.
@@ -123,9 +126,17 @@ def detalle_ticket(request, codigo):
                 if estado_nuevo == Ticket.Estado.CERRADO:
                     if ticket.fecha_cierre is None:
                         ticket.fecha_cierre = ahora
-                    EncuestaCSAT.objects.get_or_create(ticket=ticket)
+                    encuesta, _ = EncuestaCSAT.objects.get_or_create(ticket=ticket)
 
             ticket.save()
+
+            if estado_nuevo != estado_anterior:
+                emails.notificar_cambio_estado(ticket)
+                if estado_nuevo == Ticket.Estado.CERRADO:
+                    encuesta.enviado_at = ahora
+                    encuesta.save(update_fields=['enviado_at'])
+                    emails.notificar_encuesta_csat(encuesta)
+
             return redirect('tickets:detalle_ticket', codigo=ticket.codigo)
     else:
         form = TicketGestionForm(instance=ticket)
@@ -140,4 +151,27 @@ def detalle_ticket(request, codigo):
             'historial': ticket.historial_estados.select_related('agente__usuario'),
             'adjuntos': ticket.adjuntos.all(),
         },
+    )
+
+
+def responder_encuesta(request, token):
+    encuesta = get_object_or_404(EncuestaCSAT, token=token)
+
+    if encuesta.respondido_at:
+        return render(request, 'tickets/encuesta_gracias.html', {'encuesta': encuesta})
+
+    if request.method == 'POST':
+        form = EncuestaCSATForm(request.POST, instance=encuesta)
+        if form.is_valid():
+            encuesta = form.save(commit=False)
+            encuesta.respondido_at = timezone.now()
+            encuesta.save()
+            return redirect('tickets:responder_encuesta', token=token)
+    else:
+        form = EncuestaCSATForm(instance=encuesta)
+
+    return render(
+        request,
+        'tickets/encuesta.html',
+        {'form': form, 'encuesta': encuesta},
     )

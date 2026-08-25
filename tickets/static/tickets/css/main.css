@@ -667,6 +667,44 @@ a {
   margin-bottom: 0.4rem;
 }
 
+/* --- star rating (encuesta CSAT) ------------------------------ */
+/* Los radios se recorren en orden 5,4,3,2,1 (ver forms.py) y con
+   row-reverse quedan visualmente 1..5. El truco depende de ese orden
+   invertido en el DOM: hover/checked colorea el radio y todos los que
+   le siguen en el DOM (= los de menor valor, a su izquierda visual). */
+
+.star-rating {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: 0.15rem;
+}
+
+.star-rating input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.star-rating label {
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--border);
+  cursor: pointer;
+  transition: color 0.1s ease;
+}
+
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+  color: var(--stamp);
+}
+
+.star-rating input:focus-visible + label {
+  outline: 2px solid var(--carbon);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ticket-card {
     animation: none;

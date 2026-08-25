@@ -1,0 +1,24 @@
+{% extends "emails/base_email.html" %}
+
+{% block eyebrow %}{{ ticket.codigo }}{% endblock %}
+{% block titulo %}Tu ticket cambio de estado{% endblock %}
+
+{% block cuerpo %}
+<p>Hola {{ ticket.solicitante_nombre }},</p>
+<p>
+  Tu {% if ticket.tipo_solicitud == "INCIDENCIA" %}incidencia{% else %}requerimiento{% endif %}
+  <strong>{{ ticket.titulo }}</strong> ({{ ticket.codigo }}) ahora esta en estado:
+</p>
+<p style="font-family:'Courier New',monospace;font-size:18px;font-weight:bold;color:#3f6b71;margin:16px 0;">{{ ticket.get_estado_display }}</p>
+
+{% if ticket.estado == "ESPERANDO_USUARIO" %}
+  <p>Necesitamos informacion adicional de tu parte para seguir. Responde a este correo con los detalles.</p>
+{% elif ticket.estado == "RESUELTO" %}
+  {% if ticket.solucion_aplicada %}
+    <p><strong>Solucion aplicada:</strong><br>{{ ticket.solucion_aplicada }}</p>
+  {% endif %}
+  <p>Si el problema persiste, responde a este correo y reabrimos tu caso.</p>
+{% elif ticket.estado == "CERRADO" %}
+  <p>Dimos por cerrado tu caso. En unos minutos te llega una encuesta corta para calificar el servicio.</p>
+{% endif %}
+{% endblock %}

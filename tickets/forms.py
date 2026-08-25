@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Agente, AreaSolicitante, Categoria, Ticket
+from .models import Agente, AreaSolicitante, Categoria, EncuestaCSAT, Ticket
 
 
 class MultiFileInput(forms.ClearableFileInput):
@@ -103,3 +103,24 @@ class TicketGestionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['agente_asignado'].queryset = Agente.objects.filter(activo=True)
         self.fields['agente_asignado'].empty_label = 'Sin asignar'
+
+
+class EncuestaCSATForm(forms.ModelForm):
+    class Meta:
+        model = EncuestaCSAT
+        fields = ['calificacion', 'comentario']
+        widgets = {
+            'calificacion': forms.RadioSelect,
+            'comentario': forms.Textarea(
+                attrs={'rows': 3, 'placeholder': 'Cuentanos mas (opcional).'}
+            ),
+        }
+        labels = {'calificacion': 'Tu calificacion', 'comentario': 'Comentario'}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Igual que con tipo_solicitud: el campo es nullable en el modelo
+        # (hasta que se responde), asi que Django agregaria una opcion en
+        # blanco. La sacamos y forzamos a elegir una estrella.
+        self.fields['calificacion'].choices = list(reversed(EncuestaCSAT.Calificacion.choices))
+        self.fields['calificacion'].required = True

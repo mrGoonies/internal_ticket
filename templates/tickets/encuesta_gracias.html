@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Gracias por tu respuesta{% endblock %}
+
+{% block content %}
+<section class="ticket-card confirm-card">
+  <span class="confirm-card__stamp">{{ encuesta.ticket.codigo }}</span>
+  <h1>Gracias por tu respuesta</h1>
+  <p class="confirm-card__desc">
+    Ya registramos tu calificacion
+    ({{ encuesta.calificacion }}/5) para este ticket. Nos ayuda a mejorar el servicio.
+  </p>
+</section>
+{% endblock %}

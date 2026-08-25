@@ -1,0 +1,16 @@
+{% extends "emails/base_email.html" %}
+
+{% block eyebrow %}Nuevo ticket{% endblock %}
+{% block titulo %}{{ ticket.codigo }} &middot; Prioridad {{ ticket.prioridad.nombre }}{% endblock %}
+
+{% block cuerpo %}
+<p><strong>{{ ticket.titulo }}</strong></p>
+<p>{{ ticket.get_tipo_solicitud_display }} &middot; {{ ticket.categoria.nombre }} &middot; {{ ticket.area_solicitante.nombre }}</p>
+<p>De: {{ ticket.solicitante_nombre }} ({{ ticket.solicitante_email }})</p>
+{% endblock %}
+
+{% block cta %}
+<p style="margin:24px 0;">
+  <a href="{{ url_panel }}" style="background:#b23a2e;color:#f2eee3;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Ver en el panel</a>
+</p>
+{% endblock %}

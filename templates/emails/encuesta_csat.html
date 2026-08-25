@@ -1,0 +1,15 @@
+{% extends "emails/base_email.html" %}
+
+{% block eyebrow %}{{ ticket.codigo }}{% endblock %}
+{% block titulo %}Como fue tu experiencia?{% endblock %}
+
+{% block cuerpo %}
+<p>Hola {{ ticket.solicitante_nombre }},</p>
+<p>Cerramos tu caso <strong>{{ ticket.titulo }}</strong>. Cuentanos como fue el servicio, toma menos de un minuto.</p>
+{% endblock %}
+
+{% block cta %}
+<p style="margin:24px 0;">
+  <a href="{{ url_encuesta }}" style="background:#b23a2e;color:#f2eee3;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Calificar servicio</a>
+</p>
+{% endblock %}

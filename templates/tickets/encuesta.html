@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Califica tu experiencia - {{ encuesta.ticket.codigo }}{% endblock %}
+
+{% block content %}
+<section class="ticket-card confirm-card">
+  <span class="confirm-card__stamp">{{ encuesta.ticket.codigo }}</span>
+  <h1>Como fue tu experiencia?</h1>
+  <p class="confirm-card__desc">{{ encuesta.ticket.titulo }}</p>
+
+  <form method="post" style="text-align: left; max-width: 360px; margin: 0 auto;">
+    {% csrf_token %}
+    <div class="field" style="text-align: center;">
+      <div class="star-rating">
+        {% for radio in form.calificacion %}
+          {{ radio.tag }}
+          <label for="{{ radio.id_for_label }}" title="{{ radio.choice_label }}">&#9733;</label>
+        {% endfor %}
+      </div>
+      {% if form.calificacion.errors %}
+        <span class="error" style="display:block; text-align:center;">Selecciona una calificacion.</span>
+      {% endif %}
+    </div>
+    <div class="field">
+      <label for="{{ form.comentario.id_for_label }}">{{ form.comentario.label }} <span class="hint" style="display:inline">(opcional)</span></label>
+      {{ form.comentario }}
+    </div>
+    <button type="submit" class="btn-primary" style="width: 100%;">Enviar calificacion</button>
+  </form>
+</section>
+{% endblock %}

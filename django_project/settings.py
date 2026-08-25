@@ -127,11 +127,32 @@ LOGIN_REDIRECT_URL = 'tickets:lista_tickets'
 LOGOUT_REDIRECT_URL = 'tickets:login'
 
 
-# Email
-# https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
+# Email transaccional (Mailchimp Transactional / Mandrill)
+# Sin MANDRILL_API_KEY, los correos solo quedan registrados en el log
+# (ver tickets/emails.py) en vez de enviarse de verdad.
 
-MAILERS = {
-    'default': {
-        'BACKEND': 'django.core.mail.backends.console.EmailBackend',
+MANDRILL_API_KEY = env('MANDRILL_API_KEY', default='')
+EMAIL_FROM_ADDRESS = env('EMAIL_FROM_ADDRESS', default='soporte@empresa.com')
+EMAIL_FROM_NAME = env('EMAIL_FROM_NAME', default='Mesa de ayuda TI')
+
+# Correo interno que recibe alertas de tickets nuevos (opcional).
+SOPORTE_TEAM_EMAIL = env('SOPORTE_TEAM_EMAIL', default='')
+
+# Usado para armar links absolutos dentro de los correos (ej. encuesta CSAT).
+SITE_BASE_URL = env('SITE_BASE_URL', default='http://127.0.0.1:8000')
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {'class': 'logging.StreamHandler'},
+    },
+    'loggers': {
+        'tickets': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }

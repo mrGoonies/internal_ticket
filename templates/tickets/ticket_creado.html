@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Ticket {{ ticket.codigo }} creado{% endblock %}
+
+{% block content %}
+<section class="ticket-card confirm-card">
+  <span class="confirm-card__stamp">Solicitud registrada</span>
+  <p class="confirm-card__code">{{ ticket.codigo }}</p>
+  <p class="confirm-card__desc">
+    Guarda este codigo. Te enviaremos actualizaciones a
+    <strong>{{ ticket.solicitante_email }}</strong> a medida que tu
+    {% if ticket.tipo_solicitud == "INCIDENCIA" %}incidencia{% else %}requerimiento{% endif %}
+    avance.
+  </p>
+  <a class="btn-primary" href="{% url 'tickets:crear_ticket' %}">Crear otra solicitud</a>
+</section>
+{% endblock %}

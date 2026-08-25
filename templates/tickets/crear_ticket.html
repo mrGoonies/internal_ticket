@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear ticket - Mesa de ayuda TI{% endblock %}
+
+{% block content %}
+<div class="ticket-layout">
+  <section class="ticket-card">
+    <p class="ticket-card__eyebrow">Orden de servicio</p>
+    <h1>Cuentanos que necesitas</h1>
+    <p class="ticket-card__lede">
+      Completa este formulario y un tecnico revisara tu caso. No necesitas
+      iniciar sesion.
+    </p>
+
+    <form method="post" enctype="multipart/form-data" novalidate data-ticket-form>
+      {% csrf_token %}
+
+      <div class="field-group">
+        <p class="field-section-title">01 &middot; Que necesitas</p>
+        <div class="field">
+          <div class="tipo-toggle">
+            {% for radio in form.tipo_solicitud %}
+              <div>
+                {{ radio.tag }}
+                <label for="{{ radio.id_for_label }}">
+                  <span class="tipo-toggle__title">{{ radio.choice_label }}</span>
+                  <span class="tipo-toggle__desc">
+                    {% if radio.data.value == "INCIDENCIA" %}
+                      Algo dejo de funcionar
+                    {% else %}
+                      Necesito algo nuevo o un acceso
+                    {% endif %}
+                  </span>
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+          {% if form.tipo_solicitud.errors %}
+            <span class="error">{{ form.tipo_solicitud.errors.0 }}</span>
+          {% endif %}
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+            {{ form.categoria }}
+            {% if form.categoria.errors %}<span class="error">{{ form.categoria.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field">
+            <label for="{{ form.area_solicitante.id_for_label }}">{{ form.area_solicitante.label }}</label>
+            {{ form.area_solicitante }}
+            {% if form.area_solicitante.errors %}<span class="error">{{ form.area_solicitante.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <hr class="perforation">
+
+      <div class="field-group">
+        <p class="field-section-title">02 &middot; Detalle</p>
+        <div class="field">
+          <label for="{{ form.titulo.id_for_label }}">{{ form.titulo.label }}</label>
+          {{ form.titulo }}
+          {% if form.titulo.errors %}
+            <span class="error">{{ form.titulo.errors.0 }}</span>
+          {% else %}
+            <span class="hint">Resume el problema en pocas palabras.</span>
+          {% endif %}
+        </div>
+        <div class="field">
+          <label for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+          {{ form.descripcion }}
+          {% if form.descripcion.errors %}<span class="error">{{ form.descripcion.errors.0 }}</span>{% endif %}
+        </div>
+        <div class="field">
+          <label for="{{ form.adjuntos.id_for_label }}">{{ form.adjuntos.label }} <span class="hint" style="display:inline">(opcional)</span></label>
+          <div class="file-field">
+            {{ form.adjuntos }}
+            <span class="hint" data-file-hint>Puedes adjuntar capturas de pantalla u otros archivos.</span>
+          </div>
+        </div>
+      </div>
+
+      <hr class="perforation">
+
+      <div class="field-group">
+        <p class="field-section-title">03 &middot; Tus datos</p>
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.solicitante_nombre.id_for_label }}">{{ form.solicitante_nombre.label }}</label>
+            {{ form.solicitante_nombre }}
+            {% if form.solicitante_nombre.errors %}<span class="error">{{ form.solicitante_nombre.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="field">
+            <label for="{{ form.solicitante_email.id_for_label }}">{{ form.solicitante_email.label }}</label>
+            {{ form.solicitante_email }}
+            {% if form.solicitante_email.errors %}<span class="error">{{ form.solicitante_email.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="btn-primary">Enviar solicitud</button>
+        <span class="submit-note">Te avisaremos por correo cuando cambie el estado.</span>
+      </div>
+    </form>
+  </section>
+
+  <aside class="stub">
+    <p class="stub__eyebrow">Tu comprobante</p>
+    <p class="stub__code">TCK-&bull;&bull;&bull;&bull;&bull;&bull;</p>
+    <span class="stub__badge" data-stub-badge>Incidencia</span>
+    <hr class="perforation">
+    <p class="stub__title" data-stub-title>Tu solicitud aparecera aqui</p>
+    <p>Al enviar, se genera un codigo de seguimiento y queda registrado en la mesa de ayuda.</p>
+  </aside>
+</div>
+{% endblock %}
+
+{% block extra_body %}
+<script src="{% static 'tickets/js/ticket_form.js' %}"></script>
+{% endblock %}

@@ -64,6 +64,10 @@ class TicketPublicoForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # El modelo no define un default para tipo_solicitud, asi que Django
+        # agrega una opcion en blanco automaticamente; la quitamos porque con
+        # RadioSelect queda marcada por defecto en vez de forzar una eleccion.
+        self.fields['tipo_solicitud'].choices = Ticket.TipoSolicitud.choices
         self.fields['categoria'].queryset = Categoria.objects.order_by('nombre')
         self.fields['categoria'].empty_label = 'Selecciona una categoria'
         self.fields['area_solicitante'].queryset = AreaSolicitante.objects.order_by('nombre')

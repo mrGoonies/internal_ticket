@@ -1,0 +1,451 @@
+/* ---------------------------------------------------------
+   Sistema de diseno: "orden de trabajo" fisica sobre un
+   mostrador. La tarjeta clara es el ticket; el fondo oscuro
+   es el mostrador donde se llena.
+--------------------------------------------------------- */
+
+:root {
+  --desk: #14171b;
+  --desk-soft: #1b1f26;
+  --paper: #f2eee3;
+  --paper-soft: #eae5d6;
+  --ink: #1e2a38;
+  --ink-soft: #57626f;
+  --stamp: #b23a2e;
+  --stamp-dark: #8f2d23;
+  --carbon: #3f6b71;
+  --carbon-soft: #e1eaea;
+  --muted: #8b8577;
+  --border: rgba(30, 42, 56, 0.14);
+  --radius: 6px;
+  --font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+  --font-body: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--desk);
+  background-image: radial-gradient(circle at 15% 10%, var(--desk-soft), var(--desk) 55%);
+  color: var(--ink);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--carbon);
+}
+
+.shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 4rem) 1.25rem 4rem;
+}
+
+.masthead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  color: var(--paper-soft);
+}
+
+.masthead__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--carbon-soft);
+}
+
+.masthead__title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* --- layout: ticket + stub ------------------------------ */
+
+.ticket-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .ticket-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ticket-card {
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: 0 30px 60px -25px rgba(0, 0, 0, 0.55);
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  animation: rise 0.5s ease-out;
+}
+
+.ticket-card__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--stamp);
+  margin: 0 0 0.5rem;
+}
+
+.ticket-card h1 {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  margin: 0 0 0.4rem;
+  color: var(--ink);
+}
+
+.ticket-card__lede {
+  color: var(--ink-soft);
+  margin: 0 0 2rem;
+  max-width: 46ch;
+}
+
+/* --- form ------------------------------------------------ */
+
+.field-group {
+  margin-bottom: 1.6rem;
+}
+
+.field-section-title {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 1rem;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+  color: var(--ink);
+}
+
+.field .hint {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.35rem;
+}
+
+.field .error {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--stamp);
+  margin-top: 0.35rem;
+  font-weight: 600;
+}
+
+.field input[type='text'],
+.field input[type='email'],
+.field select,
+.field textarea {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) - 2px);
+  background: #fffdf8;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: none;
+  border-color: var(--carbon);
+  box-shadow: 0 0 0 3px var(--carbon-soft);
+}
+
+.field textarea {
+  resize: vertical;
+  min-height: 8rem;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 560px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* tipo de solicitud: segmented control */
+
+.tipo-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.tipo-toggle input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tipo-toggle label {
+  display: block;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.9rem 1rem;
+  cursor: pointer;
+  background: #fffdf8;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.tipo-toggle .tipo-toggle__title {
+  display: block;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+}
+
+.tipo-toggle .tipo-toggle__desc {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.tipo-toggle input:checked + label {
+  border-color: var(--stamp);
+  background: #fdf3ef;
+}
+
+.tipo-toggle input:focus-visible + label {
+  outline: 2px solid var(--carbon);
+  outline-offset: 2px;
+}
+
+/* file input */
+
+.file-field {
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 1rem;
+  background: #fffdf8;
+}
+
+.file-field input {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+
+.file-field .hint {
+  margin-top: 0.5rem;
+}
+
+/* perforation divider (tear-off effect) */
+
+.perforation {
+  border: none;
+  height: 1px;
+  margin: 2rem 0;
+  background-image: radial-gradient(circle, var(--desk) 2px, transparent 2.2px);
+  background-size: 14px 1px;
+  background-repeat: repeat-x;
+  opacity: 0.35;
+}
+
+/* --- submit ------------------------------------------------ */
+
+.submit-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.btn-primary {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.95rem;
+  background: var(--stamp);
+  color: var(--paper);
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.85rem 1.6rem;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background: var(--stamp-dark);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-primary:focus-visible {
+  outline: 3px solid var(--carbon);
+  outline-offset: 2px;
+}
+
+.submit-note {
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+/* --- stub (signature element) ------------------------------ */
+
+.stub {
+  position: sticky;
+  top: 1.5rem;
+  background: var(--paper-soft);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  color: var(--ink);
+  box-shadow: 0 20px 45px -30px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 800px) {
+  .stub {
+    position: static;
+  }
+}
+
+.stub__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.5rem;
+}
+
+.stub__code {
+  font-family: var(--font-mono);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--carbon);
+  letter-spacing: 0.02em;
+}
+
+.stub__badge {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--carbon-soft);
+  color: var(--carbon);
+}
+
+.stub__badge.is-incidencia {
+  background: #fbe7e3;
+  color: var(--stamp-dark);
+}
+
+.stub .perforation {
+  margin: 1.25rem 0;
+  background-image: radial-gradient(circle, var(--paper) 2px, transparent 2.2px);
+}
+
+.stub__title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+  min-height: 1.2em;
+}
+
+.stub p {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 0;
+}
+
+/* --- confirmation page --------------------------------------- */
+
+.confirm-card {
+  text-align: center;
+  padding: clamp(2rem, 6vw, 3.5rem) clamp(1.5rem, 5vw, 3rem);
+}
+
+.confirm-card__stamp {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--carbon);
+  border: 1px solid var(--carbon);
+  border-radius: 999px;
+  padding: 0.3rem 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.confirm-card__code {
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.03em;
+  margin: 0.5rem 0 1rem;
+}
+
+.confirm-card__desc {
+  color: var(--ink-soft);
+  max-width: 46ch;
+  margin: 0 auto 2rem;
+}
+
+.confirm-card .btn-primary {
+  text-decoration: none;
+  display: inline-block;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ticket-card {
+    animation: none;
+  }
+  * {
+    transition: none !important;
+  }
+}

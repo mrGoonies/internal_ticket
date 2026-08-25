@@ -1,0 +1,23 @@
+{% load static %}<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Mesa de ayuda TI{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'tickets/css/main.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead">
+      <p class="masthead__title">Mesa de ayuda TI</p>
+      <p class="masthead__eyebrow">Soporte interno</p>
+    </header>
+    {% block content %}{% endblock %}
+  </div>
+  {% block extra_body %}{% endblock %}
+</body>
+</html>

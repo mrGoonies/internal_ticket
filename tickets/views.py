@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from . import emails
 from .forms import EncuestaCSATForm, TicketGestionForm, TicketPublicoForm
-from .models import Adjunto, EncuestaCSAT, HistorialEstado, Prioridad, Ticket
+from .models import Adjunto, AreaSolicitante, EncuestaCSAT, HistorialEstado, Prioridad, Ticket
 from .services import cumple_sla, inferir_prioridad, tiempo_habil_resolucion
 
 SESSION_KEY_ULTIMO_TICKET = 'ultimo_ticket_id'
@@ -16,6 +16,22 @@ SESSION_KEY_ULTIMO_TICKET = 'ultimo_ticket_id'
 MESES_ES = {
     1: 'Enero', 2: 'Febrero', 3: 'Marzo', 4: 'Abril', 5: 'Mayo', 6: 'Junio',
     7: 'Julio', 8: 'Agosto', 9: 'Septiembre', 10: 'Octubre', 11: 'Noviembre', 12: 'Diciembre',
+}
+
+# Paleta categorica validada (ver skill dataviz) contra la superficie de las
+# tarjetas (#f2eee3). Se asigna por identidad del area (orden alfabetico fijo),
+# no por su ranking del mes, para que un area no cambie de color solo porque
+# subio o bajo en el conteo.
+AREA_COLORES = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300']
+
+# Prioridad es ordinal (severidad), no identidad: se colorea como escala de
+# estado fija (mismos tonos que ya usan los badges del panel), no con la
+# paleta categorica de arriba.
+COLOR_PRIORIDAD = {
+    'Critica': '#8f2d23',
+    'Alta': '#b23a2e',
+    'Media': '#c98500',
+    'Baja': '#3f6b71',
 }
 
 
@@ -237,8 +253,15 @@ def panel_kpi(request):
         .order_by('-total')
     )
     max_area = max((r['total'] for r in por_area_qs), default=0)
+    nombres_area = list(AreaSolicitante.objects.order_by('nombre').values_list('nombre', flat=True))
+    color_por_area = {nombre: AREA_COLORES[i % len(AREA_COLORES)] for i, nombre in enumerate(nombres_area)}
     por_area = [
-        {'nombre': r['area_solicitante__nombre'], 'total': r['total'], 'pct': round(r['total'] / max_area * 100)}
+        {
+            'nombre': r['area_solicitante__nombre'],
+            'total': r['total'],
+            'pct': round(r['total'] / max_area * 100),
+            'color': color_por_area.get(r['area_solicitante__nombre'], '#8b8577'),
+        }
         for r in por_area_qs
     ]
 
@@ -249,7 +272,12 @@ def panel_kpi(request):
     )
     max_prioridad = max((r['total'] for r in por_prioridad_qs), default=0)
     por_prioridad = [
-        {'nombre': r['prioridad__nombre'], 'total': r['total'], 'pct': round(r['total'] / max_prioridad * 100)}
+        {
+            'nombre': r['prioridad__nombre'],
+            'total': r['total'],
+            'pct': round(r['total'] / max_prioridad * 100),
+            'color': COLOR_PRIORIDAD.get(r['prioridad__nombre'], '#8b8577'),
+        }
         for r in por_prioridad_qs
     ]
 

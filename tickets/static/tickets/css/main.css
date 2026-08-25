@@ -705,6 +705,149 @@ a {
   border-radius: 3px;
 }
 
+/* --- KPI dashboard --------------------------------------------- */
+
+.kpi-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.kpi-nav {
+  display: flex;
+  gap: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.kpi-nav a {
+  color: var(--carbon);
+  text-decoration: none;
+}
+
+.kpi-nav a:hover {
+  text-decoration: underline;
+}
+
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-row--split {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (max-width: 760px) {
+  .stat-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.stat-tile {
+  background: #fffdf8;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+}
+
+.stat-tile--flat {
+  background: var(--paper-soft);
+  border: none;
+}
+
+.stat-tile__label {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.stat-tile__value {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.1;
+}
+
+.stat-tile__hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.meter {
+  margin-top: 0.5rem;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--carbon-soft);
+  overflow: hidden;
+}
+
+.meter__fill {
+  height: 100%;
+  background: var(--carbon);
+  border-radius: 999px;
+}
+
+.kpi-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 760px) {
+  .kpi-charts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.bar-chart-h {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.bar-chart-h__row {
+  display: grid;
+  grid-template-columns: 9rem 1fr 2.2rem;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+}
+
+.bar-chart-h__label {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bar-chart-h__track {
+  background: var(--paper-soft);
+  border-radius: 3px;
+  height: 18px;
+  overflow: hidden;
+}
+
+.bar-chart-h__fill {
+  height: 100%;
+  border-radius: 3px;
+  min-width: 2px;
+}
+
+.bar-chart-h__value {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-soft);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ticket-card {
     animation: none;

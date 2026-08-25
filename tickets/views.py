@@ -97,9 +97,13 @@ def detalle_ticket(request, codigo):
     ticket = get_object_or_404(Ticket, codigo=codigo)
 
     if request.method == 'POST':
+        # Se captura antes de instanciar el form: ModelForm.is_valid() ya
+        # escribe los datos limpios sobre esta misma instancia (_post_clean),
+        # asi que leer ticket.estado despues del is_valid() daria el nuevo
+        # valor, no el anterior.
+        estado_anterior = ticket.estado
         form = TicketGestionForm(request.POST, instance=ticket)
         if form.is_valid():
-            estado_anterior = ticket.estado
             ticket = form.save(commit=False)
             estado_nuevo = ticket.estado
             ahora = timezone.now()

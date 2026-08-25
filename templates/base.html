@@ -14,7 +14,18 @@
   <div class="shell">
     <header class="masthead">
       <p class="masthead__title">Mesa de ayuda TI</p>
-      <p class="masthead__eyebrow">Soporte interno</p>
+      {% if user.is_authenticated %}
+        <nav class="panel-nav">
+          <span>{{ user.get_full_name|default:user.username }}</span>
+          <a href="{% url 'tickets:lista_tickets' %}">Panel</a>
+          <form method="post" action="{% url 'tickets:logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="link-button">Cerrar sesion</button>
+          </form>
+        </nav>
+      {% else %}
+        <p class="masthead__eyebrow">Soporte interno</p>
+      {% endif %}
     </header>
     {% block content %}{% endblock %}
   </div>

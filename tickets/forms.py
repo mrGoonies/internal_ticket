@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import AreaSolicitante, Categoria, Ticket
+from .models import Agente, AreaSolicitante, Categoria, Ticket
 
 
 class MultiFileInput(forms.ClearableFileInput):
@@ -72,3 +72,34 @@ class TicketPublicoForm(forms.ModelForm):
         self.fields['categoria'].empty_label = 'Selecciona una categoria'
         self.fields['area_solicitante'].queryset = AreaSolicitante.objects.order_by('nombre')
         self.fields['area_solicitante'].empty_label = 'Selecciona tu area'
+
+
+class TicketGestionForm(forms.ModelForm):
+    comentario = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'rows': 2}),
+        label='Comentario del cambio (opcional)',
+        help_text='Se guarda en el historial junto con el cambio de estado.',
+    )
+
+    class Meta:
+        model = Ticket
+        fields = ['estado', 'agente_asignado', 'solucion_aplicada']
+        widgets = {
+            'solucion_aplicada': forms.Textarea(
+                attrs={
+                    'rows': 5,
+                    'placeholder': 'Describe la solucion aplicada (queda disponible para la base de conocimiento).',
+                }
+            ),
+        }
+        labels = {
+            'estado': 'Estado',
+            'agente_asignado': 'Asignado a',
+            'solucion_aplicada': 'Solucion aplicada',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['agente_asignado'].queryset = Agente.objects.filter(activo=True)
+        self.fields['agente_asignado'].empty_label = 'Sin asignar'

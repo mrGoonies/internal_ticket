@@ -1,7 +1,10 @@
+from django.contrib.auth.decorators import login_required
+from django.db import models
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
-from .forms import TicketPublicoForm
-from .models import Adjunto, HistorialEstado, Ticket
+from .forms import TicketGestionForm, TicketPublicoForm
+from .models import Adjunto, EncuestaCSAT, HistorialEstado, Prioridad, Ticket
 from .services import inferir_prioridad
 
 SESSION_KEY_ULTIMO_TICKET = 'ultimo_ticket_id'
@@ -42,3 +45,95 @@ def ticket_creado(request):
         return redirect('tickets:crear_ticket')
     ticket = get_object_or_404(Ticket, pk=ticket_id)
     return render(request, 'tickets/ticket_creado.html', {'ticket': ticket})
+
+
+@login_required
+def lista_tickets(request):
+    agente = getattr(request.user, 'agente', None)
+    if agente is None:
+        return render(request, 'tickets/sin_perfil_agente.html')
+
+    tickets = Ticket.objects.select_related('categoria', 'area_solicitante', 'prioridad', 'agente_asignado')
+
+    estado = request.GET.get('estado')
+    tipo_solicitud = request.GET.get('tipo_solicitud')
+    prioridad = request.GET.get('prioridad')
+    q = request.GET.get('q')
+
+    if estado:
+        tickets = tickets.filter(estado=estado)
+    if tipo_solicitud:
+        tickets = tickets.filter(tipo_solicitud=tipo_solicitud)
+    if prioridad:
+        tickets = tickets.filter(prioridad_id=prioridad)
+    if q:
+        tickets = tickets.filter(models.Q(codigo__icontains=q) | models.Q(titulo__icontains=q))
+
+    return render(
+        request,
+        'tickets/lista_tickets.html',
+        {
+            'agente': agente,
+            'tickets': tickets,
+            'estados': Ticket.Estado.choices,
+            'tipos': Ticket.TipoSolicitud.choices,
+            'prioridades': Prioridad.objects.order_by('orden'),
+            'filtros': {
+                'estado': estado or '',
+                'tipo_solicitud': tipo_solicitud or '',
+                'prioridad': prioridad or '',
+                'q': q or '',
+            },
+        },
+    )
+
+
+@login_required
+def detalle_ticket(request, codigo):
+    agente = getattr(request.user, 'agente', None)
+    if agente is None:
+        return render(request, 'tickets/sin_perfil_agente.html')
+
+    ticket = get_object_or_404(Ticket, codigo=codigo)
+
+    if request.method == 'POST':
+        form = TicketGestionForm(request.POST, instance=ticket)
+        if form.is_valid():
+            estado_anterior = ticket.estado
+            ticket = form.save(commit=False)
+            estado_nuevo = ticket.estado
+            ahora = timezone.now()
+
+            if estado_nuevo != estado_anterior:
+                HistorialEstado.objects.create(
+                    ticket=ticket,
+                    estado_anterior=estado_anterior,
+                    estado_nuevo=estado_nuevo,
+                    agente=agente,
+                    comentario=form.cleaned_data.get('comentario', ''),
+                )
+                if estado_anterior == Ticket.Estado.NUEVO and ticket.fecha_primera_respuesta is None:
+                    ticket.fecha_primera_respuesta = ahora
+                if estado_nuevo == Ticket.Estado.RESUELTO and ticket.fecha_resolucion is None:
+                    ticket.fecha_resolucion = ahora
+                if estado_nuevo == Ticket.Estado.CERRADO:
+                    if ticket.fecha_cierre is None:
+                        ticket.fecha_cierre = ahora
+                    EncuestaCSAT.objects.get_or_create(ticket=ticket)
+
+            ticket.save()
+            return redirect('tickets:detalle_ticket', codigo=ticket.codigo)
+    else:
+        form = TicketGestionForm(instance=ticket)
+
+    return render(
+        request,
+        'tickets/detalle_ticket.html',
+        {
+            'agente': agente,
+            'ticket': ticket,
+            'form': form,
+            'historial': ticket.historial_estados.select_related('agente__usuario'),
+            'adjuntos': ticket.adjuntos.all(),
+        },
+    )

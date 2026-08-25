@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{{ ticket.codigo }} - Panel de tickets{% endblock %}
+
+{% block content %}
+<p style="margin-bottom: 1rem;"><a href="{% url 'tickets:lista_tickets' %}" style="color: var(--paper-soft);">&larr; Volver al panel</a></p>
+
+<div class="detail-layout">
+  <section class="panel-card">
+    <p class="ticket-card__eyebrow">{{ ticket.codigo }}</p>
+    <h1 style="font-family: var(--font-display); margin: 0;">{{ ticket.titulo }}</h1>
+
+    <div class="detail-meta">
+      <span class="badge is-{{ ticket.estado|lower }}">{{ ticket.get_estado_display }}</span>
+      <span class="badge is-{{ ticket.prioridad.nombre|lower }}">{{ ticket.prioridad.nombre }}</span>
+      <span class="badge">{{ ticket.get_tipo_solicitud_display }}</span>
+      <span class="badge">{{ ticket.categoria.nombre }}</span>
+    </div>
+
+    <div class="detail-block">
+      <h2>Descripcion</h2>
+      <p>{{ ticket.descripcion }}</p>
+    </div>
+
+    <div class="detail-block">
+      <h2>Solicitante</h2>
+      <p>{{ ticket.solicitante_nombre }} &middot; {{ ticket.solicitante_email }}<br>
+      {{ ticket.area_solicitante.nombre }} &middot; via {{ ticket.get_canal_origen_display }}</p>
+    </div>
+
+    {% if adjuntos %}
+      <div class="detail-block">
+        <h2>Adjuntos</h2>
+        <ul class="attachment-list">
+          {% for adjunto in adjuntos %}
+            <li><a href="{{ adjunto.archivo.url }}" target="_blank" rel="noopener">{{ adjunto.archivo.name }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <div class="detail-block">
+      <h2>Gestionar</h2>
+      <form method="post">
+        {% csrf_token %}
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.estado.id_for_label }}">{{ form.estado.label }}</label>
+            {{ form.estado }}
+          </div>
+          <div class="field">
+            <label for="{{ form.agente_asignado.id_for_label }}">{{ form.agente_asignado.label }}</label>
+            {{ form.agente_asignado }}
+          </div>
+        </div>
+        <div class="field">
+          <label for="{{ form.solucion_aplicada.id_for_label }}">{{ form.solucion_aplicada.label }}</label>
+          {{ form.solucion_aplicada }}
+        </div>
+        <div class="field">
+          <label for="{{ form.comentario.id_for_label }}">{{ form.comentario.label }}</label>
+          {{ form.comentario }}
+          <span class="hint">{{ form.comentario.help_text }}</span>
+        </div>
+        <button type="submit" class="btn-primary">Guardar cambios</button>
+      </form>
+    </div>
+  </section>
+
+  <aside class="panel-card">
+    <h2 style="font-family: var(--font-display); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 0 0 1rem;">Historial</h2>
+    <ul class="timeline">
+      {% for evento in historial %}
+        <li>
+          <span class="timeline__when">{{ evento.fecha_cambio|date:"d-m-Y H:i" }}</span>
+          {% if evento.estado_anterior %}
+            {{ evento.get_estado_anterior_display }} &rarr; {{ evento.get_estado_nuevo_display }}
+          {% else %}
+            Creado como {{ evento.get_estado_nuevo_display }}
+          {% endif %}
+          {% if evento.agente %}<br><span class="hint" style="display:inline">{{ evento.agente }}</span>{% endif %}
+          {% if evento.comentario %}<br><span class="hint" style="display:inline">{{ evento.comentario }}</span>{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </aside>
+</div>
+{% endblock %}

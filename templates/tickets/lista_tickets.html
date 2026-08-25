@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de tickets{% endblock %}
+
+{% block content %}
+<section class="panel-card">
+  <p class="ticket-card__eyebrow">Panel de soporte</p>
+  <h1 style="font-family: var(--font-display); margin: 0 0 1.25rem;">Tickets</h1>
+
+  <form method="get" class="panel-filters">
+    <input type="text" name="q" placeholder="Buscar por codigo o titulo" value="{{ filtros.q }}">
+    <select name="estado">
+      <option value="">Todos los estados</option>
+      {% for valor, etiqueta in estados %}
+        <option value="{{ valor }}" {% if filtros.estado == valor %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+    <select name="tipo_solicitud">
+      <option value="">Todos los tipos</option>
+      {% for valor, etiqueta in tipos %}
+        <option value="{{ valor }}" {% if filtros.tipo_solicitud == valor %}selected{% endif %}>{{ etiqueta }}</option>
+      {% endfor %}
+    </select>
+    <select name="prioridad">
+      <option value="">Toda prioridad</option>
+      {% for p in prioridades %}
+        <option value="{{ p.pk }}" {% if filtros.prioridad == p.pk|stringformat:"s" %}selected{% endif %}>{{ p.nombre }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Filtrar</button>
+  </form>
+
+  {% if tickets %}
+    <div style="overflow-x: auto;">
+      <table class="ticket-table">
+        <thead>
+          <tr>
+            <th>Codigo</th>
+            <th>Titulo</th>
+            <th>Tipo</th>
+            <th>Estado</th>
+            <th>Prioridad</th>
+            <th>Area</th>
+            <th>Asignado</th>
+            <th>Creado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets %}
+            <tr>
+              <td><a href="{% url 'tickets:detalle_ticket' codigo=ticket.codigo %}">{{ ticket.codigo }}</a></td>
+              <td>{{ ticket.titulo }}</td>
+              <td>{{ ticket.get_tipo_solicitud_display }}</td>
+              <td><span class="badge is-{{ ticket.estado|lower }}">{{ ticket.get_estado_display }}</span></td>
+              <td><span class="badge is-{{ ticket.prioridad.nombre|lower }}">{{ ticket.prioridad.nombre }}</span></td>
+              <td>{{ ticket.area_solicitante.nombre }}</td>
+              <td>{{ ticket.agente_asignado|default:"Sin asignar" }}</td>
+              <td>{{ ticket.fecha_creacion|date:"d-m-Y H:i" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="empty-state">No hay tickets que coincidan con estos filtros.</p>
+  {% endif %}
+</section>
+{% endblock %}

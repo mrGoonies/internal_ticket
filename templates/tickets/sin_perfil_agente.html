@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Sin perfil de agente{% endblock %}
+
+{% block content %}
+<section class="ticket-card" style="max-width: 480px; margin: 3rem auto 0;">
+  <p class="ticket-card__eyebrow">Acceso pendiente</p>
+  <h1>Tu cuenta aun no tiene un perfil de agente</h1>
+  <p class="ticket-card__lede">
+    Pide a un administrador que te cree un registro de Agente en
+    <code>/admin/tickets/agente/</code> asociado a tu usuario para poder ver
+    el panel.
+  </p>
+  <form method="post" action="{% url 'tickets:logout' %}">
+    {% csrf_token %}
+    <button type="submit" class="btn-primary">Cerrar sesion</button>
+  </form>
+</section>
+{% endblock %}

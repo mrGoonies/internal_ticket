@@ -1,0 +1,42 @@
+databases:
+  - name: ticket-irritec-db
+    databaseName: ticket_irritec
+    user: ticket_irritec
+    plan: free
+
+services:
+  - type: web
+    name: ticket-irritec
+    runtime: python
+    plan: free
+    buildCommand: ./build.sh
+    startCommand: uv run gunicorn django_project.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.12"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".onrender.com"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ticket-irritec-db
+          property: connectionString
+      - key: TIME_ZONE
+        value: "America/Santiago"
+      - key: SITE_BASE_URL
+        sync: false
+      - key: MANDRILL_API_KEY
+        sync: false
+      - key: EMAIL_FROM_ADDRESS
+        value: soporte@empresa.com
+      - key: EMAIL_FROM_NAME
+        value: Mesa de ayuda TI
+      - key: SOPORTE_TEAM_EMAIL
+        sync: false
+      # Adjuntos de tickets: cloudinary://api_key:api_secret@cloud_name
+      # (dashboard de Cloudinary > Account Details > API Environment variable).
+      - key: CLOUDINARY_URL
+        sync: false

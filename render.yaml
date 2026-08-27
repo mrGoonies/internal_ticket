@@ -29,7 +29,7 @@ services:
       - key: MANDRILL_API_KEY
         sync: false
       - key: EMAIL_FROM_ADDRESS
-        value: soporte@empresa.com
+        value: soporte2.chile@irritec.com
       - key: EMAIL_FROM_NAME
         value: Mesa de ayuda TI
       - key: SOPORTE_TEAM_EMAIL

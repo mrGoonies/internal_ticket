@@ -2,13 +2,11 @@ databases:
   - name: ticket-irritec-db
     databaseName: ticket_irritec
     user: ticket_irritec
-    plan: free
 
 services:
   - type: web
     name: ticket-irritec
     runtime: python
-    plan: free
     buildCommand: ./build.sh
     startCommand: uv run gunicorn django_project.wsgi:application
     envVars:

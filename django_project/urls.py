@@ -24,5 +24,8 @@ urlpatterns = [
     path('', include('tickets.urls')),
 ]
 
-if settings.DEBUG:
+# Con Cloudinary los adjuntos se sirven directo desde su CDN (la URL del
+# FileField ya apunta ahi). Sin Cloudinary (dev local o fallback), Whitenoise
+# no sirve media, asi que se sirve con la vista de Django.
+if not settings.USING_CLOUDINARY:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

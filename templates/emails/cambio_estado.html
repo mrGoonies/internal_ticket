@@ -9,7 +9,7 @@
   Tu {% if ticket.tipo_solicitud == "INCIDENCIA" %}incidencia{% else %}requerimiento{% endif %}
   <strong>{{ ticket.titulo }}</strong> ({{ ticket.codigo }}) ahora esta en estado:
 </p>
-<p style="font-family:'Courier New',monospace;font-size:18px;font-weight:bold;color:#3f6b71;margin:16px 0;">{{ ticket.get_estado_display }}</p>
+<p style="font-family:'Courier New',monospace;font-size:18px;font-weight:bold;color:#006547;margin:16px 0;">{{ ticket.get_estado_display }}</p>
 
 {% if ticket.estado == "ESPERANDO_USUARIO" %}
   <p>Necesitamos informacion adicional de tu parte para seguir. Un agente te contactara directamente para pedirtela.</p>
@@ -26,7 +26,7 @@
 {% block cta %}
 {% if ticket.estado == "RESUELTO" %}
   <p style="margin:24px 0;">
-    <a href="{{ url_formulario }}" style="background:#b23a2e;color:#f2eee3;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Ingresar nueva solicitud</a>
+    <a href="{{ url_formulario }}" style="background:#006547;color:#f2eee3;padding:12px 20px;border-radius:6px;text-decoration:none;font-weight:bold;">Ingresar nueva solicitud</a>
   </p>
 {% endif %}
 {% endblock %}

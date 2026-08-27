@@ -2,6 +2,7 @@ import logging
 
 import mailchimp_transactional as MailchimpTransactional
 from django.conf import settings
+from django.templatetags.static import static
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 
@@ -9,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def _enviar(destinatario, asunto, template, contexto):
+    contexto = {**contexto, 'logo_url': f"{settings.SITE_BASE_URL}{static('tickets/img/logo-irritec.png')}"}
     html = render_to_string(template, contexto)
     texto = strip_tags(html)
 

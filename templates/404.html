@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}Pagina no encontrada{% endblock %}
+
+{% block content %}
+<section class="ticket-card confirm-card" style="max-width: 480px; margin: 3rem auto 0;">
+  <span class="confirm-card__stamp">Pagina no encontrada</span>
+  <p class="confirm-card__code">404</p>
+  <p class="confirm-card__desc">
+    El enlace que seguiste no existe o el ticket pudo haber sido movido.
+    Revisa la direccion o volve al inicio para crear o consultar una solicitud.
+  </p>
+  <a class="btn-primary" href="{% url 'tickets:crear_ticket' %}">Volver al inicio</a>
+</section>
+{% endblock %}

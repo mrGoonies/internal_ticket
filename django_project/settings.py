@@ -175,7 +175,12 @@ EMAIL_FROM_NAME = env('EMAIL_FROM_NAME', default='Mesa de ayuda TI')
 SOPORTE_TEAM_EMAIL = env('SOPORTE_TEAM_EMAIL', default='')
 
 # Usado para armar links absolutos dentro de los correos (ej. encuesta CSAT).
-SITE_BASE_URL = env('SITE_BASE_URL', default='http://127.0.0.1:8000')
+# Si no esta seteada explicitamente, se arma a partir del hostname que Render
+# inyecta automaticamente para evitar que los links queden apuntando a localhost.
+_default_site_base_url = (
+    f'https://{RENDER_EXTERNAL_HOSTNAME}' if RENDER_EXTERNAL_HOSTNAME else 'http://127.0.0.1:8000'
+)
+SITE_BASE_URL = env('SITE_BASE_URL', default=_default_site_base_url)
 
 
 LOGGING = {

@@ -7,6 +7,30 @@
   <p class="ticket-card__eyebrow">Panel de soporte</p>
   <h1 style="font-family: var(--font-display); margin: 0 0 1.25rem;">Tickets</h1>
 
+  <div class="flow-filter">
+    {% if conteos.todos %}
+      <div class="flow-filter__bar" role="img" aria-label="Distribucion de tickets: {{ conteos.abiertos }} abiertos, {{ conteos.proceso }} en proceso, {{ conteos.cerrados }} cerrados, de {{ conteos.todos }} en total.">
+        <span class="flow-filter__seg is-abiertos" style="width: {% widthratio conteos.abiertos conteos.todos 100 %}%;"></span>
+        <span class="flow-filter__seg is-proceso" style="width: {% widthratio conteos.proceso conteos.todos 100 %}%;"></span>
+        <span class="flow-filter__seg is-cerrados" style="width: {% widthratio conteos.cerrados conteos.todos 100 %}%;"></span>
+      </div>
+    {% endif %}
+    <nav class="flow-filter__legend">
+      <a href="{% querystring vista=None estado=None %}" class="flow-filter__item {% if not filtros.vista and not filtros.estado %}is-active{% endif %}">
+        <i class="flow-filter__dot is-todos"></i>Todos <span class="flow-filter__count">{{ conteos.todos }}</span>
+      </a>
+      <a href="{% querystring vista='abiertos' estado=None %}" class="flow-filter__item {% if filtros.vista == 'abiertos' %}is-active{% endif %}">
+        <i class="flow-filter__dot is-abiertos"></i>Abiertos <span class="flow-filter__count">{{ conteos.abiertos }}</span>
+      </a>
+      <a href="{% querystring vista='proceso' estado=None %}" class="flow-filter__item {% if filtros.vista == 'proceso' %}is-active{% endif %}">
+        <i class="flow-filter__dot is-proceso"></i>En proceso <span class="flow-filter__count">{{ conteos.proceso }}</span>
+      </a>
+      <a href="{% querystring vista='cerrados' estado=None %}" class="flow-filter__item {% if filtros.vista == 'cerrados' %}is-active{% endif %}">
+        <i class="flow-filter__dot is-cerrados"></i>Cerrados <span class="flow-filter__count">{{ conteos.cerrados }}</span>
+      </a>
+    </nav>
+  </div>
+
   <form method="get" class="panel-filters">
     <input type="text" name="q" placeholder="Buscar por codigo o titulo" value="{{ filtros.q }}">
     <select name="estado">

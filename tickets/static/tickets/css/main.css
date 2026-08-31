@@ -504,6 +504,78 @@ a {
   padding: clamp(1.25rem, 3vw, 2rem);
 }
 
+/* flow-filter: la distribucion de tickets como un tramo de linea de goteo --
+   el ancho de cada segmento es la proporcion real, no decoracion. */
+
+.flow-filter {
+  margin-bottom: 1.5rem;
+}
+
+.flow-filter__bar {
+  display: flex;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--paper-soft);
+  margin-bottom: 0.75rem;
+}
+
+.flow-filter__seg {
+  height: 100%;
+  min-width: 0;
+}
+
+.flow-filter__seg.is-abiertos { background: var(--brand); }
+.flow-filter__seg.is-proceso { background: #2f5b8f; }
+.flow-filter__seg.is-cerrados { background: var(--muted); }
+
+.flow-filter__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+}
+
+.flow-filter__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--soil-soft);
+  text-decoration: none;
+}
+
+.flow-filter__item:hover {
+  color: var(--soil);
+}
+
+.flow-filter__item.is-active {
+  color: var(--soil);
+  font-weight: 600;
+}
+
+.flow-filter__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  flex-shrink: 0;
+}
+
+.flow-filter__dot.is-todos { background: none; border: 1.5px solid var(--soil-soft); }
+.flow-filter__dot.is-abiertos { background: var(--brand); }
+.flow-filter__dot.is-proceso { background: #2f5b8f; }
+.flow-filter__dot.is-cerrados { background: var(--muted); }
+
+.flow-filter__count {
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.flow-filter__item.is-active .flow-filter__count {
+  color: inherit;
+}
+
 .panel-filters {
   display: flex;
   flex-wrap: wrap;

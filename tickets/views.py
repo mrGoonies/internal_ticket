@@ -13,6 +13,18 @@ from .services import calcular_kpis_mes, inferir_prioridad
 
 SESSION_KEY_ULTIMO_TICKET = 'ultimo_ticket_id'
 
+# Grupos mutuamente excluyentes (cubren todos los estados sin superposicion),
+# para poder mostrarlos como una barra de distribucion proporcional.
+GRUPOS_ESTADO = {
+    'abiertos': [Ticket.Estado.NUEVO],
+    'proceso': [
+        Ticket.Estado.ASIGNADO,
+        Ticket.Estado.EN_PROGRESO,
+        Ticket.Estado.ESPERANDO_USUARIO,
+    ],
+    'cerrados': [Ticket.Estado.RESUELTO, Ticket.Estado.CERRADO],
+}
+
 
 def crear_ticket(request):
     if request.method == 'POST':
@@ -61,18 +73,29 @@ def lista_tickets(request):
     tickets = Ticket.objects.select_related('categoria', 'area_solicitante', 'prioridad', 'agente_asignado')
 
     estado = request.GET.get('estado')
+    vista = request.GET.get('vista')
     tipo_solicitud = request.GET.get('tipo_solicitud')
     prioridad = request.GET.get('prioridad')
     q = request.GET.get('q')
 
-    if estado:
-        tickets = tickets.filter(estado=estado)
     if tipo_solicitud:
         tickets = tickets.filter(tipo_solicitud=tipo_solicitud)
     if prioridad:
         tickets = tickets.filter(prioridad_id=prioridad)
     if q:
         tickets = tickets.filter(models.Q(codigo__icontains=q) | models.Q(titulo__icontains=q))
+
+    conteos = {
+        'todos': tickets.count(),
+        'abiertos': tickets.filter(estado__in=GRUPOS_ESTADO['abiertos']).count(),
+        'proceso': tickets.filter(estado__in=GRUPOS_ESTADO['proceso']).count(),
+        'cerrados': tickets.filter(estado__in=GRUPOS_ESTADO['cerrados']).count(),
+    }
+
+    if estado:
+        tickets = tickets.filter(estado=estado)
+    elif vista in GRUPOS_ESTADO:
+        tickets = tickets.filter(estado__in=GRUPOS_ESTADO[vista])
 
     return render(
         request,
@@ -83,8 +106,10 @@ def lista_tickets(request):
             'estados': Ticket.Estado.choices,
             'tipos': Ticket.TipoSolicitud.choices,
             'prioridades': Prioridad.objects.order_by('orden'),
+            'conteos': conteos,
             'filtros': {
                 'estado': estado or '',
+                'vista': vista or '',
                 'tipo_solicitud': tipo_solicitud or '',
                 'prioridad': prioridad or '',
                 'q': q or '',
